@@ -1,0 +1,40 @@
+{
+  "name": "sample-react-docker",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.13",
+    "axios": "^0.19.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-scripts": "3.2.0"
+  },
+  "scripts": {
+    "start": "docker-compose up",
+    "docker:fullstack": "docker-compose up",
+    "deploy": "heroku container:push web && heroku container:release web",
+    "react:start": "react-scripts start",
+    "react:build": "react-scripts build",
+    "docker:mysql": "docker-compose -f mysql.yml up",
+    "docker:mongo": "docker-compose -f mongo.yml up",
+    "docker:express": "docker-compose -f express.yml up",
+    "docker:react": "docker-compose -f react.yml up",
+    "docker:build": "docker-compose build",
+    "docker:clean": "docker rmi $(docker images -qa -f 'dangling=true') --force"
+  },
+  "proxy": "http://127.0.0.1:3000/",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devServer": {
+    "disableHostCheck": true
+  }
+}

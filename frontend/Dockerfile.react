@@ -1,0 +1,24 @@
+# A node.js v10 box
+FROM node:10
+
+RUN mkdir -p /usr/src/app
+
+WORKDIR /usr/src/app
+
+RUN ls
+
+COPY ./frontend/package.json /usr/src/app/package.json
+
+RUN ls
+
+RUN npm install
+
+COPY . .
+
+# # Install dependencies (if any) in package.json
+# RUN yarn install
+
+EXPOSE 3001
+
+# Start the Node.js app on load
+CMD [ "npm", "run", "react:start" ]
