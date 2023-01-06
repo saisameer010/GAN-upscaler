@@ -1,20 +1,21 @@
 import React, {useState} from 'react';
-function saveAsFile(text, filename) {
-	// Step 1: Create the blob object with the text you received
-	const type = 'application/text'; // modify or get it from response
-	const blob = new BlobBuilder([text], {type});
+// import io from 'socket.io-client/dist/socket.io';
+// function saveAsFile(text, filename) {
+// 	// Step 1: Create the blob object with the text you received
+// 	const type = 'application/text'; // modify or get it from response
+// 	const blob = new BlobBuilder([text], {type});
   
-	// Step 2: Create Blob Object URL for that blob
-	const url = URL.createObjectURL(blob);
+// 	// Step 2: Create Blob Object URL for that blob
+// 	const url = URL.createObjectURL(blob);
   
-	// Step 3: Trigger downloading the object using that URL
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = filename;
-	a.click(); // triggering it manually
-	// a.removeChild()
-	// revokeObjectURL()
-  }
+// 	// Step 3: Trigger downloading the object using that URL
+// 	const a = document.createElement('a');
+// 	a.href = url;
+// 	a.download = filename;
+// 	a.click(); // triggering it manually
+// 	// a.removeChild()
+// 	// revokeObjectURL()
+//   }
 function FileUploadPage(){
 	const [selectedFile, setSelectedFile] = useState();
 	const [isSelected, setIsSelected] = useState();
@@ -54,12 +55,14 @@ function FileUploadPage(){
 						}
 					)
 					.then((response) => {
-						var a = response.body.getReader();
-						a.read().then(({ done, value }) => {
-							// console.log(new TextDecoder("utf-8").decode(value));
-							saveAsFile(new TextDecoder("utf-8").decode(value), 'filename');
-						  }
-						);
+						response.arrayBuffer().then(function(buffer) {
+							const url = window.URL.createObjectURL(new Blob([buffer]));
+							const link = document.createElement("a");
+							link.href = url;
+							link.setAttribute("download", "image.png"); //or any other extension
+							document.body.appendChild(link);
+							link.click();
+						  });
 					})
 					.catch((error) => {
 						console.error('Error:', error);
