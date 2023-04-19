@@ -10,10 +10,11 @@ from flask_cors import CORS
 import logging
 import logging.handlers
 import json 
-
-logging.basicConfig(filename='app.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from keras import backend as K
+# logging=logging.getLogger('Sample Logger')
+logging.basicConfig(filename='log_file.log',level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.warning('This will get logged to a file')
-
+# logging.setLevel(logging.DEBUG)
 app = Flask(__name__)
 CORS(app)
 # redis = Redis(host='redis', port=6379)
@@ -56,20 +57,26 @@ def upload():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return 'File uploaded' 
   
+# @app.before_first_request()
+# def loadweights():
+
+
 @app.route("/upscale",methods=["POST"])
 def upscale_image():
     try:
+        K.clear_session()
         rdn = RDN(arch_params={'C': 6, 'D':20, 'G':64, 'G0':64, 'x':2})
-        logging.info(f"RDN called")
+        logging.warning(f"RDN called")
         rdn.model.load_weights('./Super-Resolution-GAN-master/rdn-C6-D20-G64-G064-x2_ArtefactCancelling_epoch219.hdf5')
-        logging.info(f"RDN called weight loaded")
-        logging.info("Logging in upscale ")
-        logging.debug(f"test {request}")
-        logging.debug(f"test{request.get_json()}")
-        logging.debug(request.json["filename"])
+        logging.warning(f"RDN called weight loaded")
+        logging.debug("Logging in upscale ")
+        logging.warning(f"test {request}")
+        logging.warning(f"test{request.get_json()}")
+        logging.warning(request.json["filename"])
         # logging.debug(request.json["body"])
         file_name=request.json["filename"]
-        compressed_img = Image.open('./uploads/'+file_name)
+        compressed_img = Image.open(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+        # compressed_img = Image.open('./uploads/'+file_name)
         compressed_lr_img = np.array(compressed_img)
         logging.info(f"Image compressed ")
         sr_img = rdn.predict(compressed_lr_img)
@@ -78,6 +85,7 @@ def upscale_image():
         out = Image.fromarray(sr_img)
         out.save('./outputs/'+"out_"+file_name)
         logging.info(f"Output saved")
+        K.clear_session()
         return send_file('./outputs/'+"out_"+file_name, as_attachment=True)
     except Exception as exp:
         logging.error(f"Error Occured {exp}")
